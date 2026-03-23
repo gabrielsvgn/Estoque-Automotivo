@@ -1,33 +1,34 @@
+from banco.conexao import criar_conexao
+
 #Classe carros
 class Carro():
-    def __init__(self, valor, km, ano, cor, marca, modelo, placa, status):
-        self.valor = valor
-        self.km = km
-        self.ano = ano
+    def __init__(self, marca, modelo, ano, cor, quilometragem, preco):
+        self.id = None
         self.marca = marca
         self.modelo = modelo
+        self.ano = ano
         self.cor = cor
-        self.placa = placa
-        self.status = status
+        self.quilometragem = quilometragem
+        self.preco = preco
+        self.vendido = True
 
 class Estoque():
     def __init__(self):
-        self.carros = []
-        self.vendidos = []
+        self.conexao = criar_conexao()
+        self.cursor = self.conexao.cursor()
 
     def adicionar_carro(self, carro):
-        self.carros.append({
-            "ID": len(self.carros) + 1,
-            **carro.__dict__
-        })
+       self.cursor.execute("""
+            INSERT INTO carros (marca, modelo, ano, cor, quilometragem, preco, vendido)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+""",        (carro.marca, carro.modelo, carro.ano, carro.cor, carro.quilometragem, carro.preco, carro.vendido))
+       self.conexao.commit()
 
     def listar_carros(self):
-        for lista in self.carros:
-            print(lista)
-
-    def listar_vendidos(self):
-        for carro in self.vendidos:
-            print(carro)
+       self.cursor.execute("SELECT * FROM carros")
+       carros = self.cursor.fetchall()
+       for carro in carros:
+           print(carro)
 
     def definir_status(self, id, status):
         for carro in self.carros:
@@ -44,12 +45,10 @@ class Estoque():
         self.definir_status(id, "disponível")
 
 
-vectra = Carro(36000, "186000", "2008", "prata", "Chevrolet", "Vectra", "DDI0I17", "disponível")
-astra = Carro(45000, "215000", "2007", "Vermelho", "Chevrolet", "Astra SS", "IRB7A08", "disponível")
+vectra = Carro("Chevrolet", "Vectra", 2008, "Prata", 186000, 36000)
+astra = Carro("Chevrolet", "Astra", 2007, "Vermelho Lyra", 215000, 45000)
 estoque = Estoque()
-estoque.adicionar_carro(vectra)
-estoque.adicionar_carro(astra)
-estoque.vender_carro(1)
 estoque.listar_carros()
-estoque.listar_vendidos()
+
+
 

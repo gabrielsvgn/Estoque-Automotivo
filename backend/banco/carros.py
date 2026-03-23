@@ -1,4 +1,4 @@
-from conexao import criar_conexao
+from banco.conexao import criar_conexao
 
 conn = criar_conexao()
 cursor = conn.cursor()
